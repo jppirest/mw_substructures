@@ -1,4 +1,4 @@
-Name,log(Age),E(B-V),moddist
+Name,log(Age),E(B-V),moddist #modulo de distancia sem correção!
 AG1,7.2,0.1,6
 AG2,7.8,0.5,8
 AG3,9.0,0.3,7
