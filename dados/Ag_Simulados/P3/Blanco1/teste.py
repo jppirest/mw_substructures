@@ -235,8 +235,8 @@ F = False
 observado = 5*np.log10(270) - 5
 
 regressao_aglomerado()
-fit_inicial(show = F)
-ajuste_inicial(show = F, show_final = F)
-n_idades(show = F)
+fit_inicial(show = T)
+ajuste_inicial(show = T, show_final = T)
+n_idades(show = T)
 print('Idade = 7.8, V - M_V = ' + str(observado))
 final(show = T)
