@@ -17,20 +17,22 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'Blanco 1'
-arquivo = 'blanco1.fit'
+nome = 'M45'
+arquivo = 'm45.txt'
+modulo_teorico = 5*np.log10(136) - 5
+idade_teorica = 8.1
+
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    E = 0.01
-    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 1, header = None, usecols = [0,1], names = ['V','B-V'], delim_whitespace = True)
+    E = 0.03
+    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 51, header = None, usecols = [1,2], names = ['V','B-V'], delim_whitespace = True)
     isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
     idades = np.unique(isocronas['log(Age)'])
     XAglo = aglomerado['B-V']
     YAglo = aglomerado['V']
     AGLO = np.vstack((XAglo,YAglo)).T
-global_var('blanco1.fit')
+global_var(arquivo)
 
-##Funções para calcular distâncias, regressões etc
 
 def linear_func(p, x):
     m, c = p
@@ -66,7 +68,8 @@ def chi_to_age(IDADE):
       C,D = jpt(AGLO[j],ISO[i])
       final = frayn(ISO[i][C], ISO[i][D],AGLO[j])
       A[i] += final
-  return A
+      B[i] += final*10**(-0.4*AGLO[j][1])
+  return A,B
 
 
 #################
@@ -166,7 +169,6 @@ def ajuste_inicial(show = False, show_final = False):
         fig.suptitle(nome, fontweight = 'bold')
         plt.show();
     if show_final == True:
-        modulo_teorico = 5*np.log10(270) - 5
         fig,ax = plt.subplots(figsize=(10,8)) #(figsize=(10,8))
         plt.gca().invert_yaxis()
         plt.plot(isocrona_idade_estimada['(B-V)o'] + E, isocrona_idade_estimada['Mv'] + minimo_beau , label = 'Beauchamp', color = 'green', zorder = 10)
@@ -204,39 +206,62 @@ def n_idades(show = False):
         plt.show();
 def final(show = False):
     newage = idades#[5:25]
+    resultado_chi = []
+    resultado_beau = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
       results = executor.map(chi_to_age,newage)
-    resultado = []
     for i in results:
-        resultado.append(i)
-    resultado = np.array(resultado)
+        resultado_chi.append(i[0])
+        resultado_beau.append(i[1])
+    resultado_chi = np.array(resultado_chi)
+    resultado_beau = np.array(resultado_beau)
+    locais_chi = np.where(resultado_chi==np.min(resultado_chi))
+    locais_beau= np.where(resultado_beau==np.min(resultado_beau))
+    print('Melhor resultado pelo método de Chi: ')
+    print('log(Age) = ', newage[locais_chi[0][0]])
+    print('V - M_V = ', modulo_distancia[locais_chi[1][0]])
+    print('\n')
+    print('Melhor resultado pelo método de Beauchamp: ')
+    print('log(Age) = ', newage[locais_beau[0][0]])
+    print('V - M_V = ', modulo_distancia[locais_beau[1][0]])
+    print('\n')
+    print('log(Age) Teórica: ', idade_teorica)
+    print('V - M_V Observado: ', modulo_teorico)
     if show == True:
         import matplotlib.cm as cm
         from mpl_toolkits.axes_grid1 import ImageGrid
-        z = resultado
         x = modulo_distancia
         y = newage
-        # Set colomap
         cmap = cm.get_cmap('jet')
         cmap = cm.jet
-        fig,ax = plt.subplots(figsize=(8,6)) #(figsize=(10,8))
+        fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
         levels = 200
-        im  = ax.contourf(x, y, z, levels= levels, antialiased=False, cmap=cmap)
+        im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label(r'$ \mathbf{\chi^2}$', fontweight = 'bold', rotation=0, labelpad=15)
         ax.set_xlabel(r'$ \mathbf{V - M_V}$', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
+        plt.savefig('chi_final' + nome.strip() +'.png', format = 'png')
+        plt.show();
+
+        fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
+        levels = 200
+        im  = ax.contourf(x, y, resultado_beau, levels= levels, antialiased=False, cmap=cmap)
+        cbar = fig.colorbar(im)
+        cbar.set_label('Beauchamp', fontweight = 'bold', rotation=270, labelpad=15)
+        ax.set_xlabel(r'$ \mathbf{V - M_V}$', fontweight = 'bold', labelpad=10)
+        ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
+        ax.set_title(nome, fontweight = 'bold')
+        plt.savefig('beauchamp_final_' + nome.strip() +'.png', format = 'png')
         plt.show();
 
 T = True
 F = False
 
-observado = 5*np.log10(270) - 5
 
 regressao_aglomerado()
 fit_inicial(show = T)
 ajuste_inicial(show = T, show_final = T)
 n_idades(show = T)
-print('Idade = 7.8, V - M_V = ' + str(observado))
 final(show = T)
