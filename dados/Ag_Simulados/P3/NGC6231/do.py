@@ -17,17 +17,18 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'Blanco 1'
+nome = 'NGC 6231'
 def rename(string):
     return string.replace(' ', '')
-arquivo = 'blanco1.fit'
-modulo_teorico = 5*np.log10(270) - 5 ###
-idade_teorica = 7.8
+arquivo = 'ngc6231.csv'
+
+modulo_teorico = 5*np.log10(1243) - 5 ###
+idade_teorica = 6.8
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    E = 0.01
-    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 1, header = None, usecols = [0,1], names = ['V','B-V'], delim_whitespace = True)
+    E = 0.42
+    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 0, header = 0, usecols = [0,1], names = ['V','B-V'])
     isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
     idades = np.unique(isocronas['log(Age)'])
     XAglo = aglomerado['B-V']
@@ -125,9 +126,9 @@ def fit_inicial(show = False):
         plt.plot(isocrona_idade_estimada['(B-V)o'] + E,isocrona_idade_estimada['Mv'] +5*np.log10(distancia_estimada/10)+3.1*E , label = 'Isócrona', color = 'r', zorder = 10)
         plt.scatter(aglomerado['B-V'],aglomerado['V'], label = nome, color = 'none', edgecolor = 'black')
         plt.legend(frameon=True)
-        plt.xlabel(r"$(B-V)$")
-        plt.ylabel(r"$V$")
-        plt.title('Fit Inicial - ' + nome)
+        plt.xlabel(r"$ \mathbf{(B-V)}$")
+        plt.ylabel(r"$\mathbf{V}$")
+        fig.suptitle('Fit Inicial - ' + nome, fontweight = 'bold')
         plt.savefig('fit_inicial_' + rename(nome) + '.png', format = 'png')
         plt.tight_layout()
         plt.show();
@@ -178,6 +179,7 @@ def ajuste_inicial(show = False, show_final = False):
         plt.plot(isocrona_idade_estimada['(B-V)o'] + E,isocrona_idade_estimada['Mv'] + modulo_teorico , '--', label = 'Teórica', color = 'blue', zorder = 10)
         plt.scatter(aglomerado['B-V'] ,aglomerado['V'], label = nome, color = 'none', edgecolor = 'black')
         plt.legend(frameon=True)
+        fig.suptitle( 'Ajuste Final - '+ nome, fontweight = 'bold')
         plt.xlabel(r"$ \mathbf{(B-V)}$")
         plt.ylabel(r"$ \mathbf{V}$")
         plt.savefig('ajuste_final_'+ rename(nome) + '.png', format = 'png')
