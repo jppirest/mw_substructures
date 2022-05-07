@@ -17,18 +17,18 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'NGC 4755'
+nome = 'IC 2602'
 def rename(string):
     return string.replace(' ', '')
-arquivo = 'tentativa.csv'
+arquivo = 'ic2602.csv'
 
-modulo_teorico = 5*np.log10(1975) - 5 ###
-idade_teorica = 7.2
+modulo_teorico = 5*np.log10(149.0) - 5
+idade_teorica = 8
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    E = 0.39
-    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 0, header = 0, usecols = [11,12], names = ['V','B-V'])
+    E = 0.004
+    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 0, header = 0, usecols = [0,1], names = ['V','B-V'])
     isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
     idades = np.unique(isocronas['log(Age)'])
     XAglo = aglomerado['B-V']
@@ -91,7 +91,7 @@ def regressao_aglomerado():
     count = 0
     ytentativa = coefs[0]*x + coefs[1]
     for element in y:
-        if ytentativa[count] + 1*sigma[count] >= element and ytentativa[count] - 1*sigma[count] <= element:
+        if ytentativa[count] + 2*sigma[count] >= element and ytentativa[count] - 2*sigma[count] <= element:
             xadj.append(x[count])
             yadj.append(y[count])
         count+=1
