@@ -20,7 +20,7 @@ plt.rc('font', **font)
 nome = 'IC 2602'
 def rename(string):
     return string.replace(' ', '')
-arquivo = '2602final.csv'
+arquivo = 'ic2602.csv'
 
 modulo_teorico = 5*np.log10(149.0) - 5
 idade_teorica = 8
@@ -36,7 +36,7 @@ def global_var(x):
     AGLO = np.vstack((XAglo,YAglo)).T
 global_var(arquivo)
 
-
+print(idades)
 def linear_func(p, x):
     m, c = p
     return m*x + c
@@ -208,6 +208,7 @@ def n_idades(show = False):
         ax1.set_ylabel('Função Beauchamp',  fontweight = 'bold')
         ax2.set_ylabel(r'$ \mathbf{\chi^2}$')
         fig.suptitle(nome, fontweight = 'bold')
+        plt.savefig('editadepos.png', format = 'png')
         plt.show();
 def final(show = False):
     newage = idades#[5:25]
@@ -238,9 +239,9 @@ def final(show = False):
         x = modulo_distancia
         y = newage
         cmap = cm.get_cmap('jet')
-        cmap = cm.jet
+        cmap = cm.jet_r
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
-        levels = 200
+        levels = 1200
         im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label(r'$ \mathbf{\chi^2}$', fontweight = 'bold', rotation=0, labelpad=15)

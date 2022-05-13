@@ -205,6 +205,7 @@ def n_idades(show = False):
         ax1.set_ylabel('Função Beauchamp',  fontweight = 'bold')
         ax2.set_ylabel(r'$ \mathbf{\chi^2}$')
         fig.suptitle(nome, fontweight = 'bold')
+        plt.savefig('editadepos.png', format = 'png')
         plt.show();
 def final(show = False):
     newage = idades#[5:25]

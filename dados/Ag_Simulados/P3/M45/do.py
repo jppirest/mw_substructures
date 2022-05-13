@@ -202,6 +202,7 @@ def n_idades(show = False):
         ax2.set_xlabel('log(Age)',  fontweight = 'bold')
         ax1.set_ylabel('Função Beauchamp',  fontweight = 'bold')
         ax2.set_ylabel(r'$ \mathbf{\chi^2}$')
+        ax2.set_ylim(0,20)
         fig.suptitle(nome, fontweight = 'bold')
         plt.show();
 def final(show = False):
