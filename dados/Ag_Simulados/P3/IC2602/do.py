@@ -20,7 +20,7 @@ plt.rc('font', **font)
 nome = 'IC 2602'
 def rename(string):
     return string.replace(' ', '')
-arquivo = 'ic2602.csv'
+arquivo = '2602final.csv'
 
 modulo_teorico = 5*np.log10(149.0) - 5
 idade_teorica = 8
@@ -91,7 +91,7 @@ def regressao_aglomerado():
     count = 0
     ytentativa = coefs[0]*x + coefs[1]
     for element in y:
-        if ytentativa[count] + 2*sigma[count] >= element and ytentativa[count] - 2*sigma[count] <= element:
+        if ytentativa[count] + sigma[count] >= element and ytentativa[count] - sigma[count] <= element:
             xadj.append(x[count])
             yadj.append(y[count])
         count+=1
