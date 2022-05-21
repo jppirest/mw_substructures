@@ -28,7 +28,8 @@ def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
     E = 0.01
     aglomerado =  pd.read_csv(x,comment = '#', skiprows = 1, header = None, usecols = [0,1], names = ['V','B-V'], delim_whitespace = True)
-    isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
+    #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
+    isocronas = pd.read_csv('../newiso.csv', header = 0)
     idades = np.unique(isocronas['log(Age)'])
     XAglo = aglomerado['B-V']
     YAglo = aglomerado['V']
