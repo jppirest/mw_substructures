@@ -17,21 +17,21 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'AG3'
+nome = 'VDB66'
 def rename(string):
     return string.replace(' ', '')
-arquivo = 'ag3.txt'
+arquivo = 'vdb66.txt'
 
-#modulo_teorico = 5*np.log10(1243) - 5 ###
-modulo_teorico = 7.0
-idade_teorica = 9
+#modulo_teorico = 5*np.log10(7000) - 5 ###
+modulo_teorico = 15.47 ###
+idade_teorica = 8.9
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    E = 0.3
-    aglomerado =  pd.read_csv(x,comment = '#', skiprows = 0, header = 0, usecols = [0,1], names = ['B-V','V'])
+    E = 0.4
+    aglomerado =  pd.read_csv(x , sep = "\s+", comment = '#')
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
-    isocronas = pd.read_csv('../newiso.csv', header = 0)
+    isocronas = pd.read_csv('newiso.csv', header = 0)
     idades = np.unique(isocronas['log(Age)'])
     XAglo = aglomerado['B-V']
     YAglo = aglomerado['V']
@@ -114,7 +114,7 @@ def regressao_aglomerado():
     f.close()
 def fit_inicial(show = False):
     global idade, distancia_estimada
-    regressao_isocronas = pd.read_csv('../../../Isocronas/Regression_Iso.txt', header = 0)
+    regressao_isocronas = pd.read_csv('../../Isocronas/Regression_Iso.txt', header = 0)
     f1 = interp1d(regressao_isocronas['(B-V)TurnOff'],  regressao_isocronas['Age'],kind= 'linear')
     regressao_aglomerado = pd.read_csv('regressao_' + arquivo, header = 0)
     idade = f1(regressao_aglomerado['TurnOffColor'] - E)
@@ -136,7 +136,7 @@ def fit_inicial(show = False):
         plt.show();
 def ajuste_inicial(show = False, show_final = False):
     modulodist_inicial = 5*np.log10(distancia_estimada/10) + E*3.1
-    arrays_de_incremento = np.arange(0,2.05,0.05)
+    arrays_de_incremento = np.arange(0,3.05,0.05)
     subtracao_distancias = np.concatenate((-1*np.flip(arrays_de_incremento[1:]),arrays_de_incremento))
     global modulo_distancia
     modulo_distancia = subtracao_distancias + modulodist_inicial
@@ -186,7 +186,6 @@ def ajuste_inicial(show = False, show_final = False):
         plt.savefig('ajuste_final_'+ rename(nome) + '.png', format = 'png')
         plt.show();
 def n_idades(show = False):
-    #idades = np.arange(8.5,9.6,0.1)
     BeauchampAGES = np.zeros_like(idades)
     chisquaredAGES = np.zeros_like(idades)
     for j in range(len(idades)):
@@ -252,7 +251,7 @@ def final(show = False):
         plt.show();
 
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
-        levels = 200
+        levels = len(x)
         im  = ax.contourf(x, y, resultado_beau, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label('Beauchamp', fontweight = 'bold', rotation=270, labelpad=15)
@@ -266,7 +265,7 @@ T = True
 F = False
 
 
-regressao_aglomerado()
+#regressao_aglomerado()
 fit_inicial(show = T)
 ajuste_inicial(show = T, show_final = T)
 n_idades(show = T)
