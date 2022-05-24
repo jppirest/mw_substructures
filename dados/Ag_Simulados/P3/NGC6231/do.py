@@ -30,7 +30,7 @@ def global_var(x):
     E = 0.42
     aglomerado =  pd.read_csv(x,comment = '#', skiprows = 0, header = 0, usecols = [0,1], names = ['V','B-V'])
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
-    isocronas = pd.read_csv('../newiso.csv', header = 0)    
+    isocronas = pd.read_csv('../newiso.csv', header = 0)
     idades = np.unique(isocronas['log(Age)'])
     XAglo = aglomerado['B-V']
     YAglo = aglomerado['V']
@@ -139,7 +139,6 @@ def ajuste_inicial(show = False, show_final = False):
     subtracao_distancias = np.concatenate((-1*np.flip(arrays_de_incremento[1:]),arrays_de_incremento))
     global modulo_distancia
     modulo_distancia = subtracao_distancias + modulodist_inicial
-    isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
     isocrona_idade_estimada = isocronas[isocronas['log(Age)']==idade]
     Yiso = np.zeros((len(modulo_distancia), len(isocrona_idade_estimada)))
     for i in range(len(modulo_distancia)):
@@ -265,8 +264,8 @@ T = True
 F = False
 
 
-regressao_aglomerado()
-fit_inicial(show = T)
-ajuste_inicial(show = T, show_final = T)
+#regressao_aglomerado()
+fit_inicial(show = F)
+ajuste_inicial(show = F, show_final = F)
 n_idades(show = T)
-final(show = T)
+#final(show = T)
