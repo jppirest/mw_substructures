@@ -22,7 +22,7 @@ def rename(string):
     return string.replace(' ', '')
 arquivo = 'ngc3114.csv'
 
-#modulo_teorico = 5*np.log10(1243) - 5 ###
+#modulo_teorico = 5*np.log10(987) - 5 ###
 modulo_teorico = 10.05
 idade_teorica = 8.2
 
@@ -31,7 +31,7 @@ def global_var(x):
     E = 0.27
     aglomerado =  pd.read_csv(x, usecols = ['Gmag','BP-RP'])
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
-    isocronas = pd.read_csv('iso_gaia_clipped.csv')
+    isocronas = pd.read_csv('../iso_gaia_clipped.csv')
     idades = np.unique(isocronas['logAge'])
     XAglo = aglomerado['BP-RP']
     YAglo = aglomerado['Gmag']
@@ -93,7 +93,7 @@ def regressao_aglomerado():
     count = 0
     ytentativa = coefs[0]*x + coefs[1]
     for element in y:
-        if ytentativa[count] + 2*sigma[count] >= element and ytentativa[count] - 2*sigma[count] <= element:
+        if ytentativa[count] + 1*sigma[count] >= element and ytentativa[count] - 1*sigma[count] <= element:
             xadj.append(x[count])
             yadj.append(y[count])
         count+=1
@@ -114,7 +114,7 @@ def regressao_aglomerado():
     f.close()
 def fit_inicial(show = False):
     global idade, distancia_estimada
-    regressao_isocronas = pd.read_csv('Regressoes_Isocronas_Gaia.txt', header = 0)
+    regressao_isocronas = pd.read_csv('../Regressoes_Isocronas_Gaia.txt', header = 0)
     f1 = interp1d(regressao_isocronas['(BP-RP)TurnOff'],  regressao_isocronas['Age'],kind= 'linear')
     regressao_aglomerado = pd.read_csv('regressao_' + arquivo, header = 0)
     idade = f1(regressao_aglomerado['TurnOffColor'] - E)
@@ -132,8 +132,8 @@ def fit_inicial(show = False):
         plt.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+3.1*E , label = 'Isócrona', color = 'r', zorder = 10)
         plt.scatter(XAglo,YAglo, label = nome, color = 'none', edgecolor = 'black')
         plt.legend(frameon=True)
-        plt.xlabel(r"$ \mathbf{(B-V)}$")
-        plt.ylabel(r"$\mathbf{V}$")
+        plt.xlabel(r"$ \mathbf{(BP-RP)}$")
+        plt.ylabel(r"$\mathbf{G}$")
         fig.suptitle('Fit Inicial - ' + nome, fontweight = 'bold')
         plt.savefig('fit_inicial_' + rename(nome) + '.png', format = 'png')
         plt.tight_layout()
@@ -169,8 +169,8 @@ def ajuste_inicial(show = False, show_final = False):
         fig, (ax1, ax2) = plt.subplots(1,2, figsize = (13,6))
         ax1.scatter(modulo_distancia, Beauchamp, color = 'k')
         ax2.scatter(modulo_distancia, chisquared, color = 'k')
-        ax1.set_xlabel(r'$ \mathbf{V - M_V}$')
-        ax2.set_xlabel(r'$ \mathbf{V - M_V}$')
+        ax1.set_xlabel(r'$ \mathbf{G - M_G}$')
+        ax2.set_xlabel(r'$ \mathbf{G - M_G}$')
         ax1.set_ylabel('Função Beauchamp', fontweight = 'bold')
         ax2.set_ylabel(r'$ \mathbf{\chi^2}$')
         fig.suptitle(nome, fontweight = 'bold')
@@ -186,8 +186,8 @@ def ajuste_inicial(show = False, show_final = False):
         plt.scatter(XAglo,YAglo, label = nome, color = 'none', edgecolor = 'black')
         plt.legend(frameon=True)
         fig.suptitle( 'Ajuste Inicial - '+ nome, fontweight = 'bold')
-        plt.xlabel(r"$ \mathbf{(B-V)}$")
-        plt.ylabel(r"$ \mathbf{V}$")
+        plt.xlabel(r"$ \mathbf{(BP-RP)}$")
+        plt.ylabel(r"$ \mathbf{G}$")
         plt.savefig('ajuste_inicial_'+ rename(nome) + '.png', format = 'png')
         plt.show();
 def n_idades(show = False):
@@ -254,7 +254,7 @@ def final(show = False):
         im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label(r'$ \mathbf{\chi^2}$', fontweight = 'bold', rotation=0, labelpad=15)
-        ax.set_xlabel(r'$ \mathbf{V - M_V}$', fontweight = 'bold', labelpad=10)
+        ax.set_xlabel(r'$ \mathbf{G - M_G}$', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.savefig('chi_final_' + rename(nome) +'.png', format = 'png')
@@ -277,8 +277,8 @@ def plot_finalchi():
     plt.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E , label = 'Isócrona', color = 'r', zorder = 10)
     plt.scatter(XAglo,YAglo, label = nome, color = 'none', edgecolor = 'black')
     plt.legend(frameon=True)
-    plt.xlabel(r"$ \mathbf{(B-V)}$")
-    plt.ylabel(r"$\mathbf{V}$")
+    plt.xlabel(r"$ \mathbf{(BP-RP)}$")
+    plt.ylabel(r"$\mathbf{G}$")
     #fig.suptitle('Fit Inicial - ' + nome, fontweight = 'bold')
     #plt.savefig('fit_inicial_' + rename(nome) + '.png', format = 'png')
     plt.tight_layout()
@@ -287,9 +287,9 @@ T = True
 F = False
 
 
-#regressao_aglomerado()
-fit_inicial(show = F)
-ajuste_inicial(show = F, show_final = T)
-#n_idades(show = T)
-#final(show = T)
-#plot_finalchi()
+regressao_aglomerado()
+fit_inicial(show = T)
+ajuste_inicial(show = T, show_final = T)
+n_idades(show = T)
+final(show = T)
+plot_finalchi()
