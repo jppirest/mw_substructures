@@ -29,13 +29,13 @@ def rename(string):
     return string.replace(' ', '')
 arquivo = 'king8.csv'
 
-#modulo_teorico = 5*np.log10(987) - 5 ###
-modulo_teorico = 13.71
+modulo_teorico = 5*np.log10(3944) - 5 ###
+#modulo_teorico = 15.83
 idade_teorica = 8.9
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    Av = 1.38
+    Av = 1.9
     E = Av/3.1
     aglomerado =  pd.read_csv(x, usecols = ['Gmag','BP-RP'])
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)

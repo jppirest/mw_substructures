@@ -29,13 +29,14 @@ def rename(string):
     return string.replace(' ', '')
 arquivo = 'berkeley23.csv'
 
-#modulo_teorico = 5*np.log10(987) - 5 ###
-modulo_teorico = 13.67
-idade_teorica = 9.0
+modulo_teorico = 5*np.log10(4842) - 5 ###
+#modulo_teorico = 13.67
+#idade_teorica = 9.0
+idade_teorica = 9.2
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    Av = 0.83
+    Av = 0.862
     E = Av/3.1
     aglomerado =  pd.read_csv(x, usecols = ['Gmag','BP-RP'])
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
@@ -89,7 +90,7 @@ print('log(Age) Teórica: ', idade_teorica)
 print('V - M_V Observado: ', modulo_teorico)
 print('\n')
 
-def regressao_aglomerado(n_sigma = 1):
+def regressao_aglomerado(n_sigma = 2):
     x = XAglo
     y = YAglo
     regressao_inicial = linregress(x,y)
