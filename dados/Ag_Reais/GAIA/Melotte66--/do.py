@@ -29,13 +29,19 @@ def rename(string):
     return string.replace(' ', '')
 arquivo = 'melotte66.csv'
 
-modulo_teorico = 13.42
+
+modulo_teorico = 5*np.log10(4692) - 5 ###
+#modulo_teorico = 13.42
 idade_teorica = 9.6
 
+
+
+
 def global_var(x):
-    global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
-    Av = 0.25
-    E = Av/3.1
+    global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Av
+    AVNN = 0.583
+    E = (1.09909-0.63831)*AVNN
+    Av = 0.83139*AVNN
     aglomerado =  pd.read_csv(x, usecols = ['Gmag','BP-RP'])
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
     isocronas = pd.read_csv('../iso_gaia_clipped.csv')
@@ -111,9 +117,8 @@ def regressao_aglomerado(n_sigma = 1):
     regressao_mainseq = linregress(xadj,yadj)
     coefs_ms = [regressao_mainseq.slope,regressao_mainseq.intercept]
     coefs_erro_ms = [regressao_mainseq.stderr,regressao_mainseq.intercept_stderr]
-    #cor_to = np.min(xadj)
-    cor_to = sorted(x)[15]
-    mag_to = 0 #yadj[np.where(xadj==cor_to)[0][0]]
+    cor_to = np.min(xadj)
+    mag_to = yadj[np.where(xadj==cor_to)[0][0]]
     f = open("regressao_" + arquivo, "w")
     f.write("Slope,Intercept,Slope_Error,Intercept_Error,TurnOffColor,TurnOffMag\n")
     f.write( str(coefs_ms[0]) + ', ' + str(coefs_ms[1]) + ', ' + str(coefs_erro_ms[0]) + ', ' + str(coefs_erro_ms[1]) + ', ' + str(cor_to) + ', ' + str(mag_to) + '\n')
@@ -127,10 +132,11 @@ def fit_inicial(show = False):
     idade = np.around(idade,1)[0]
     print('Idade inicial estimada:')
     print(idade)
-    isocro_idadeinicial = regressao_isocronas[regressao_isocronas['Age'] == idade] ##mudando aqui
+    isocro_idadeinicial = regressao_isocronas[regressao_isocronas['Age'] == idade]
     global slope_regressao
     slope_regressao = regressao_aglomerado['Slope'].item()
     distancia_estimada = distancia(regressao_aglomerado['Slope'].item(), regressao_aglomerado['Intercept'].item(), isocro_idadeinicial['Intercept'].item(),E)
+    distancia_estimada = 5000
     print('Modulo de distancia inicial estimado:')
     print( 5*np.log10(distancia_estimada/10))
     print('\n')
@@ -144,7 +150,7 @@ def fit_inicial(show = False):
         ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
         ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
         ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
-        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+3.1*E , label =  'log(Age) = ' + str(idade), color = 'r', zorder = 10)
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+Av , label =  'log(Age) = ' + str(idade), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.set_xlabel(r"$ \mathbf{BP-RP}$")
         ax.set_ylabel(r"$\mathbf{G}$")
@@ -154,7 +160,7 @@ def fit_inicial(show = False):
         plt.tight_layout()
         plt.show();
 def ajuste_inicial(show = False, show_final = False):
-    modulodist_inicial = 5*np.log10(distancia_estimada/10) + E*3.1
+    modulodist_inicial = 5*np.log10(distancia_estimada/10) + Av
     arrays_de_incremento = np.arange(0,3.05,0.05)
     subtracao_distancias = np.concatenate((-1*np.flip(arrays_de_incremento[1:]),arrays_de_incremento))
     global modulo_distancia
@@ -174,7 +180,7 @@ def ajuste_inicial(show = False, show_final = False):
         C,D = jpt(AGLO[j],ISO[i])
         final = frayn(ISO[i][C], ISO[i][D],AGLO[j])
         chisquared[i] += final
-        Beauchamp[i] += final*10**(-0.4*AGLO[j][1])
+        Beauchamp[i] += final*10**(-0.6*AGLO[j][1])
     min_beau = np.where(Beauchamp==min(Beauchamp))[0]
     min_chi = np.where(chisquared==min(chisquared))[0] ##Onde sao os minimos
     global minimo_beau, minimo_chi
@@ -325,7 +331,7 @@ def plot_finalchi():
     isocrona_chi = isocronas[isocronas['logAge']==idadechi]
     fig,ax = plt.subplots(figsize=(7,5))
     plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Av, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -341,10 +347,10 @@ def plot_finalchi():
     plt.tight_layout()
     plt.show();
 def plot_finalbeau():
-    isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
+    isocrona_beau = isocronas[isocronas['logAge']==idadebeau]
     fig,ax = plt.subplots(figsize=(7,5))
     plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+    ax.plot(isocrona_beau['BP-RP'] + E, isocrona_beau['Gmag'] + distbeau +Av, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -360,10 +366,10 @@ def plot_finalbeau():
     plt.tight_layout()
     plt.show();
 def plot_teorico():
-    isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
+    isocrona_teorica = isocronas[isocronas['logAge']==idade_teorica]
     fig,ax = plt.subplots(figsize=(7,5))
     plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico +3.1*E , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
+    ax.plot(isocrona_teorica['BP-RP'] + E, isocrona_teorica['Gmag'] + modulo_teorico + Av , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
