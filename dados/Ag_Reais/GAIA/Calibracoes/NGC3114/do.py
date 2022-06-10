@@ -299,7 +299,7 @@ def final(show = False):
         x = modulo_distancia
         y = newage
         cmap = cm.get_cmap('jet')
-        cmap = cm.jet
+        cmap = cm.jet_r
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
         levels = 200
         im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
@@ -323,7 +323,7 @@ def final(show = False):
         plt.show();
 def plot_finalchi():
     isocrona_chi = isocronas[isocronas['logAge']==idadechi]
-    fig,ax = plt.subplots(figsize=(7,5))
+    fig,ax = plt.subplots()
     plt.gca().invert_yaxis()
     ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
@@ -342,7 +342,7 @@ def plot_finalchi():
     plt.show();
 def plot_finalbeau():
     isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
-    fig,ax = plt.subplots(figsize=(7,5))
+    fig,ax = plt.subplots()
     plt.gca().invert_yaxis()
     ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
@@ -361,7 +361,7 @@ def plot_finalbeau():
     plt.show();
 def plot_teorico():
     isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
-    fig,ax = plt.subplots(figsize=(7,5))
+    fig,ax = plt.subplots()
     plt.gca().invert_yaxis()
     ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico +3.1*E , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')

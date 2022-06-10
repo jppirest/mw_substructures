@@ -137,7 +137,7 @@ def fit_inicial(show = False):
     print('\n')
     if show == True:
         isocrona_idade_estimada = isocronas[isocronas['logAge']==idade]
-        fig,ax = plt.subplots(figsize=(7,5)) #(figsize=(10,8))
+        fig,ax = plt.subplots() #(figsize=(10,8))
         plt.gca().invert_yaxis()
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -207,7 +207,7 @@ def ajuste_inicial(show = False, show_final = False):
         fig.suptitle(nome, fontweight = 'bold')
         plt.show();
     if show_final == True:
-        fig,ax = plt.subplots(figsize=(10,8)) #(figsize=(10,8))
+        fig,ax = plt.subplots() #(figsize=(10,8))
         plt.gca().invert_yaxis()
         isocrona_teorica= isocronas[isocronas['logAge']==idade_teorica]
         ax.plot(isocrona_idade_estimada['BP-RP'] + E, isocrona_idade_estimada['Gmag'] + minimo_beau , label = 'Beauchamp', color = 'green', zorder = 10)
@@ -312,7 +312,7 @@ def final(show = False):
         plt.savefig('chi_final_' + rename(nome) +'.png', format = 'png')
         plt.show();
 
-        fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
+        fig, ax = plt.subplots() #(figsize=(10,8))
         levels = 200
         im  = ax.contourf(x, y, resultado_beau, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
@@ -324,7 +324,7 @@ def final(show = False):
         plt.show();
 def plot_finalchi():
     isocrona_chi = isocronas[isocronas['logAge']==idadechi]
-    fig,ax = plt.subplots(figsize=(7,5))
+    fig,ax = plt.subplots()
     plt.gca().invert_yaxis()
     ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
@@ -343,7 +343,7 @@ def plot_finalchi():
     plt.show();
 def plot_finalbeau():
     isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
-    fig,ax = plt.subplots(figsize=(7,5))
+    fig,ax = plt.subplots()
     plt.gca().invert_yaxis()
     ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +3.1*E, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
@@ -362,7 +362,7 @@ def plot_finalbeau():
     plt.show();
 def plot_teorico():
     isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
-    fig,ax = plt.subplots(figsize=(7,5))
+    fig,ax = plt.subplots()
     plt.gca().invert_yaxis()
     ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico +3.1*E , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
