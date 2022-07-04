@@ -36,7 +36,8 @@ idade_teorica = 8.2
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO
     Av = 0.02
-    E = Av/3.1
+    E = (1.09909-0.63831)*Av1
+    Ag = 0.83139*Av1
     aglomerado =  pd.read_csv(x, usecols = ['Gmag','BP-RP'])
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
     isocronas = pd.read_csv('../iso_gaia_clipped.csv')
