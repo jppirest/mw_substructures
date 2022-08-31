@@ -25,18 +25,19 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'King 8'
+nome = 'NGC 2420'
 def rename(string):
     return string.replace(' ', '')
-arquivo = 'final_5d.csv'
 
-modulo_teorico = 5*np.log10(3944) - 5 ###
-#modulo_teorico = 13.71
-idade_teorica = 8.9
+
+modulo_teorico = 5*np.log10(2435) - 5 ###
+idade_teorica = 9.3
+
+arquivo = 'final_5d.csv'
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Av
-    AVNN = 1.89
+    AVNN = 0.117
     E = (1.09909-0.63831)*AVNN
     Av = 0.83139*AVNN
     aglomerado =  pd.read_csv(x)
