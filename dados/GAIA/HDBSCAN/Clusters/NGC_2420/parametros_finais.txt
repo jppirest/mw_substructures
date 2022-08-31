@@ -1,5 +1,0 @@
-Aglomerado NGC 2420, Av = 0.09727263
-Teórico: Age = 9.3, V-MV = 11.932494827753267
-Estimativa Inicial: Age = 8.7, V-MV = 10.835754248863282
-Estimativa Chi: Age = 9.2, V-MV = 12.052879154863282
-Estimativa Beauchamp: Age = 9.3, V-MV = 11.802879154863282
