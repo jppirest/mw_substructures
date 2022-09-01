@@ -28,17 +28,21 @@ plt.rc('font', **font)
 nome = 'King 8'
 def rename(string):
     return string.replace(' ', '')
-arquivo = 'final_5d.csv'
 
-modulo_teorico = 5*np.log10(3944) - 5 ###
-#modulo_teorico = 13.71
+
+#modulo_teorico = 5*np.log10(3944) - 5 ###dias
+modulo_teorico = 13.71 ##cantat
 idade_teorica = 8.9
 
+
+arquivo = 'final_5d.csv'
+
 def global_var(x):
-    global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Av
-    AVNN = 1.89
-    E = (1.09909-0.63831)*AVNN
-    Av = 0.83139*AVNN
+    global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Ag
+    Av = 1.38 ##Cantat
+    #Av = 1.899 ##Dias
+    Ag = 0.83627*Av
+    E = (1.08337 - 0.63439)*Av
     aglomerado =  pd.read_csv(x)
     aglomerado = aglomerado.dropna(how = 'any', subset=['bp_rp','phot_g_mean_mag'])
     aglomerado = aglomerado.reset_index()
@@ -89,9 +93,9 @@ def chi_to_age(IDADE):
   return A,B
 
 #################
-print('log(Age) Teórica: ', idade_teorica)
-print('V - M_V Observado: ', modulo_teorico)
-print('\n')
+#print('log(Age) Teórica: ', idade_teorica)
+#print('V - M_V Observado: ', modulo_teorico)
+#print('\n')
 
 def regressao_aglomerado(n_sigma = 2):
     x = XAglo
@@ -129,15 +133,15 @@ def fit_inicial(show = False):
     regressao_aglomerado = pd.read_csv('regressao_' + arquivo, header = 0)
     idade_inicial = f1(regressao_aglomerado['TurnOffColor'] - E)
     idade_inicial = np.around(idade_inicial,1)[0]
-    print('Idade inicial estimada:')
-    print(idade_inicial)
+    #print('Idade inicial estimada:')
+    #print(idade_inicial)
     isocro_idadeinicial = regressao_isocronas[regressao_isocronas['Age'] == idade_inicial] ##mudando aqui
     global slope_regressao
     slope_regressao = regressao_aglomerado['Slope'].item()
     distancia_estimada = distancia(regressao_aglomerado['Slope'].item(), regressao_aglomerado['Intercept'].item(), isocro_idadeinicial['Intercept'].item(),E)
-    print('Modulo de distancia inicial estimado:')
-    print( 5*np.log10(distancia_estimada/10))
-    print('\n')
+    #print('Modulo de distancia inicial estimado:')
+    #print( 5*np.log10(distancia_estimada/10))
+    #print('\n')
     if show == True:
         isocrona_idade_estimada = isocronas[isocronas['logAge']==idade_inicial]
         fig,ax = plt.subplots(figsize=(7,5)) #(figsize=(10,8))
@@ -148,7 +152,7 @@ def fit_inicial(show = False):
         ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
         ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
         ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
-        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+Av , label =  'log(Age) = ' + str(idade_inicial), color = 'r', zorder = 10)
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+Ag , label =  'log(Age) = ' + str(idade_inicial), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.set_xlabel(r"$ \mathbf{BP-RP}$")
         ax.set_ylabel(r"$\mathbf{G}$")
@@ -290,13 +294,13 @@ def final(show = False):
     distchi = modulo_distancia[locais_chi[1][0]]
     idadebeau = newage[locais_beau[0][0]]
     distbeau = modulo_distancia[locais_beau[1][0]]
-    print('Melhor resultado pelo método de Chi: ')
-    print('log(Age) = ', idadechi)
-    print('V - M_V = ', distchi)
-    print('\n')
-    print('Melhor resultado pelo método de Beauchamp: ')
-    print('log(Age) = ', idadebeau)
-    print('V - M_V = ', distbeau)
+    #print('Melhor resultado pelo método de Chi: ')
+    #print('log(Age) = ', idadechi)
+    #print('V - M_V = ', distchi)
+    #print('\n')
+    #print('Melhor resultado pelo método de Beauchamp: ')
+    #print('log(Age) = ', idadebeau)
+    #print('V - M_V = ', distbeau)
     if show == True:
         import matplotlib.cm as cm
         from mpl_toolkits.axes_grid1 import ImageGrid
@@ -329,7 +333,7 @@ def plot_finalchi():
     isocrona_chi = isocronas[isocronas['logAge']==idadechi]
     fig,ax = plt.subplots(figsize=(7,5))
     plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Av, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Ag, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -348,7 +352,7 @@ def plot_finalbeau():
     isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
     fig,ax = plt.subplots(figsize=(7,5))
     plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distbeau +Av, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
+    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distbeau +Ag, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -367,7 +371,7 @@ def plot_teorico():
     isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
     fig,ax = plt.subplots(figsize=(7,5))
     plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Av , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
+    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Ag , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
     ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -398,10 +402,11 @@ final(show = F)
 #plot_finalchi()
 #plot_finalbeau()
 
-file = open('parametros_finais.txt',"w")
-file.write('Aglomerado ' + nome + ', Av = ' + str(Av) + '\n')
-file.write('Teórico: Age = ' + str(idade_teorica) + ', V-MV = ' + str(modulo_teorico) +  '\n')
-file.write('Estimativa Inicial: Age = ' + str(idade_inicial) + ', V-MV = ' + str(5*np.log10(distancia_estimada/10)) +  '\n')
-file.write('Estimativa Chi: Age = ' + str(idadechi) + ', V-MV = ' + str(distchi) +  '\n')
-file.write('Estimativa Beauchamp: Age = ' + str(idadebeau) + ', V-MV = ' + str(distbeau) +  '\n')
+file = open('parametros_finais.csv',"w")
+file.write('#Aglomerado ' + nome + ', Ag = ' + str(Ag) +  ', E = ' + str(E) + '\n')
+file.write('Metodo,Age,ModDist\n')
+file.write('DIAS2022, ' + str(idade_teorica) + ', ' + str(modulo_teorico) +  '\n')
+file.write('Inicial, ' + str(idade_inicial) + ', ' + str(5*np.log10(distancia_estimada/10)) +  '\n')
+file.write('Chi, ' + str(idadechi) + ', ' + str(distchi) +  '\n')
+file.write('Beauchamp, ' + str(idadebeau) + ', ' + str(distbeau))
 file.close()

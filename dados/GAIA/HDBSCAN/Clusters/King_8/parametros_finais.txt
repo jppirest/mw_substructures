@@ -1,5 +1,0 @@
-Aglomerado King 8, Av = 1.5713270999999998
-Teórico: Age = 8.9, V-MV = 12.979684531345868
-Estimativa Inicial: Age = 7.9, V-MV = 11.892138620577612
-Estimativa Chi: Age = 8.9, V-MV = 14.79184864057761
-Estimativa Beauchamp: Age = 8.9, V-MV = 14.391848640577612

@@ -25,20 +25,22 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'NGC 2420'
+nome = 'Melotte 66'
 def rename(string):
     return string.replace(' ', '')
 
 
-modulo_teorico = 5*np.log10(2435) - 5 ###
-idade_teorica = 9.3
+modulo_teorico = 5*np.log10(4692) - 5 ###dias
+#modulo_teorico = 13.42 ##cantat
+idade_teorica = 9.6
 
 
 arquivo = 'final_5d.csv'
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Ag
-    Av = 0.117 ##DIAS 2022
+    #Av = 0.25 ##Cantat
+    Av = 0.583 ##Dias
     Ag = 0.83627*Av
     E = (1.08337 - 0.63439)*Av
     aglomerado =  pd.read_csv(x)
