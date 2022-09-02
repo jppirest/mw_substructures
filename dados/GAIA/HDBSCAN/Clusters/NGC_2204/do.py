@@ -39,8 +39,9 @@ arquivo = 'final_5d.csv'
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Ag
-    Av = 0.01 ##Cantat
+    #Av = 0.01 ##Cantat
     #Av = 0.183 ##Dias
+    Av = 0.193/2
     Ag = 0.83627*Av
     E = (1.08337 - 0.63439)*Av
     aglomerado =  pd.read_csv(x)
