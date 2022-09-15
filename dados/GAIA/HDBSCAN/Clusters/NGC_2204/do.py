@@ -127,7 +127,7 @@ def regressao_aglomerado(n_sigma = 2):
     f.write("Slope,Intercept,Slope_Error,Intercept_Error,TurnOffColor,TurnOffMag\n")
     f.write( str(coefs_ms[0]) + ', ' + str(coefs_ms[1]) + ', ' + str(coefs_erro_ms[0]) + ', ' + str(coefs_erro_ms[1]) + ', ' + str(cor_to) + ', ' + str(mag_to) + '\n')
     f.close()
-def fit_inicial(show = False):
+def fit_inicial(show = False, save = False):
     global idade_inicial, distancia_estimada
     regressao_isocronas = pd.read_csv('../Regressoes_Isocronas_Gaia.txt', header = 0)
     f1 = interp1d(regressao_isocronas['(BP-RP)TurnOff'],  regressao_isocronas['Age'],kind= 'linear')
@@ -146,7 +146,7 @@ def fit_inicial(show = False):
     if show == True:
         isocrona_idade_estimada = isocronas[isocronas['logAge']==idade_inicial]
         fig,ax = plt.subplots(figsize=(7,5)) #(figsize=(10,8))
-        plt.gca().invert_yaxis()
+        ax.invert_yaxis()
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
         ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
@@ -159,10 +159,26 @@ def fit_inicial(show = False):
         ax.set_ylabel(r"$\mathbf{G}$")
         ax.legend()
         fig.suptitle('Fit Inicial - ' + nome , fontweight = 'bold')
-        plt.savefig('fit_inicial_' + rename(nome) + '.png', format = 'png')
-        plt.tight_layout()
         plt.show();
-def ajuste_inicial(show = False, show_final = False):
+    if save  == True:
+        isocrona_idade_estimada = isocronas[isocronas['logAge']==idade_inicial]
+        fig,ax = plt.subplots(figsize=(7,5)) #(figsize=(10,8))
+        ax.invert_yaxis()
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+Ag , label =  'log(Age) = ' + str(idade_inicial), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        ax.legend()
+        fig.suptitle('Fit Inicial - ' + nome , fontweight = 'bold')
+        plt.tight_layout()
+        plt.savefig('./images/fit_inicial_' + rename(nome) + '.png', format = 'png');
+def ajuste_inicial(show = False, show_final = False, save = False):
     modulodist_inicial = 5*np.log10(distancia_estimada/10) + E*3.1
     arrays_de_incremento = np.arange(0,3.05,0.05)
     subtracao_distancias = np.concatenate((-1*np.flip(arrays_de_incremento[1:]),arrays_de_incremento))
@@ -234,9 +250,30 @@ def ajuste_inicial(show = False, show_final = False):
         fig.suptitle( 'Ajuste Inicial - '+ nome + '\n log(Age) = ' + str(idade_inicial), fontweight = 'bold')
         ax.set_xlabel(r"$ \mathbf{BP-RP}$")
         ax.set_ylabel(r"$ \mathbf{G}$")
-        plt.savefig('ajuste_inicial_'+ rename(nome) + '.png', format = 'png')
         plt.tight_layout()
         plt.show();
+    if save == True:
+        fig,ax = plt.subplots(figsize=(10,8)) #(figsize=(10,8))
+        plt.gca().invert_yaxis()
+        isocrona_teorica= isocronas[isocronas['logAge']==idade_teorica]
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E, isocrona_idade_estimada['Gmag'] + minimo_beau , label = 'Beauchamp', color = 'green', zorder = 10)
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E, isocrona_idade_estimada['Gmag'] + minimo_chi , label = r'$ \chi^2 $', color = 'red', zorder = 10)
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] + modulodist_inicial , '--', label = 'Isócrona Inicial', color = 'blue', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+
+        ax.legend(frameon=True)
+        fig.suptitle( 'Ajuste Inicial - '+ nome + '\n log(Age) = ' + str(idade_inicial), fontweight = 'bold')
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$ \mathbf{G}$")
+        plt.tight_layout()
+        plt.savefig('./images/ajuste_inicial_'+ rename(nome) + '.png', format = 'png');
 def n_idades(show = False):
     BeauchampAGES = np.zeros_like(idades)
     chisquaredAGES = np.zeros_like(idades)
@@ -277,7 +314,7 @@ def n_idades(show = False):
         fig.suptitle(nome + '\n m - M fixado = ' + str(minimo_chi) + ' (minimo chi)', fontweight = 'bold')
         plt.tight_layout()
         plt.show();
-def final(show = False):
+def final(show = False, save = True):
     newage = idades
     resultado_chi = []
     resultado_beau = []
@@ -317,7 +354,6 @@ def final(show = False):
         ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
-        plt.savefig('chi_final_' + rename(nome) +'.png', format = 'png')
         plt.show();
 
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
@@ -328,80 +364,159 @@ def final(show = False):
         ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
-        plt.savefig('beauchamp_final_' + rename(nome) +'.png', format = 'png')
         plt.show();
-def plot_finalchi():
-    isocrona_chi = isocronas[isocronas['logAge']==idadechi]
-    fig,ax = plt.subplots(figsize=(7,5))
-    plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Ag, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
-    ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
-    ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
-    ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
-    ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
-    ax.legend(frameon=True)
-    ax.set_xlabel(r"$ \mathbf{BP-RP}$")
-    ax.set_ylabel(r"$\mathbf{G}$")
-    fig.suptitle('Fit Final Chi - ' + nome, fontweight = 'bold')
-    plt.savefig('fit_final_chi' + rename(nome) + '.png', format = 'png')
-    plt.tight_layout()
-    plt.show();
-def plot_finalbeau():
-    isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
-    fig,ax = plt.subplots(figsize=(7,5))
-    plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distbeau +Ag, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
-    ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
-    ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
-    ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
-    ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
-    ax.legend(frameon=True)
-    ax.set_xlabel(r"$ \mathbf{BP-RP}$")
-    ax.set_ylabel(r"$\mathbf{G}$")
-    fig.suptitle('Fit Final Beauchamp - ' + nome, fontweight = 'bold')
-    plt.savefig('fit_final_beau' + rename(nome) + '.png', format = 'png')
-    plt.tight_layout()
-    plt.show();
-def plot_teorico():
-    isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
-    fig,ax = plt.subplots(figsize=(7,5))
-    plt.gca().invert_yaxis()
-    ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Ag , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
-    ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
-    ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
-    ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
-    ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
-    ax.legend()
-    ax.set_xlabel(r"$ \mathbf{BP-RP}$")
-    ax.set_ylabel(r"$\mathbf{G}$")
-    fig.suptitle('Fit Teórico - ' + nome, fontweight = 'bold')
-    plt.savefig('fit_teorico' + rename(nome) + '.png', format = 'png')
-    plt.tight_layout()
-    plt.show();
+    if save == True:
+        import matplotlib.cm as cm
+        from mpl_toolkits.axes_grid1 import ImageGrid
+        x = modulo_distancia
+        y = newage
+        cmap = cm.get_cmap('jet')
+        cmap = cm.jet
+        fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
+        levels = 200
+        im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
+        cbar = fig.colorbar(im)
+        cbar.set_label(r'$ \mathbf{\chi^2}$', fontweight = 'bold', rotation=0, labelpad=15)
+        ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
+        ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
+        ax.set_title(nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.savefig('./images/chi_final_' + rename(nome) +'.png', format = 'png')
+
+        fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
+        levels = 200
+        im  = ax.contourf(x, y, resultado_beau, levels= levels, antialiased=False, cmap=cmap)
+        cbar = fig.colorbar(im)
+        cbar.set_label('Beauchamp', fontweight = 'bold', rotation=270, labelpad=15)
+        ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
+        ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
+        ax.set_title(nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.savefig('./images/beauchamp_final_' + rename(nome) +'.png', format = 'png')
+def plot_finalchi(show = False, save=False):
+    if show == True:
+        isocrona_chi = isocronas[isocronas['logAge']==idadechi]
+        fig,ax = plt.subplots(figsize=(7,5))
+        plt.gca().invert_yaxis()
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Ag, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.legend(frameon=True)
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        fig.suptitle('Fit Final Chi - ' + nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.show();
+    if save == True:
+        isocrona_chi = isocronas[isocronas['logAge']==idadechi]
+        fig,ax = plt.subplots(figsize=(7,5))
+        plt.gca().invert_yaxis()
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Ag, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.legend(frameon=True)
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        fig.suptitle('Fit Final Chi - ' + nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.savefig('./images/fit_final_chi' + rename(nome) + '.png', format = 'png')
+def plot_finalbeau(show = False, save = False):
+    if show == True:
+        isocrona_beau = isocronas[isocronas['logAge']==idadebeau]
+        fig,ax = plt.subplots(figsize=(7,5))
+        plt.gca().invert_yaxis()
+        ax.plot(isocrona_beau['BP-RP'] + E, isocrona_beau['Gmag'] + distbeau +Ag, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.legend(frameon=True)
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        fig.suptitle('Fit Final Beauchamp - ' + nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.show();
+    if save == True:
+        isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
+        fig,ax = plt.subplots(figsize=(7,5))
+        plt.gca().invert_yaxis()
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distbeau +Ag, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.legend(frameon=True)
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        fig.suptitle('Fit Final Beauchamp - ' + nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.savefig('./images/fit_final_beau' + rename(nome) + '.png', format = 'png')
+def plot_teorico(show = False, save = True):
+    if show == True:
+        isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
+        fig,ax = plt.subplots(figsize=(7,5))
+        ax.invert_yaxis()
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Ag , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.legend()
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        fig.suptitle('Fit Teórico - ' + nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.show();
+    if save == True:
+        isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
+        fig,ax = plt.subplots(figsize=(7,5))
+        ax.invert_yaxis()
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Ag , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
+        ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.tick_params(which = 'major', axis = 'y', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
+        ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
+        ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
+        ax.legend()
+        ax.set_xlabel(r"$ \mathbf{BP-RP}$")
+        ax.set_ylabel(r"$\mathbf{G}$")
+        fig.suptitle('Fit Teórico - ' + nome, fontweight = 'bold')
+        plt.tight_layout()
+        plt.savefig('./images/fit_teorico' + rename(nome) + '.png', format = 'png')
 
 
-T = True
-F = False
 
 #plot_teorico()
 regressao_aglomerado()
-fit_inicial(show = F)
-ajuste_inicial(show = F, show_final = F)
-n_idades(show = F)
-final(show = F)
+fit_inicial(save = True)
+ajuste_inicial(save = True)
+#n_idades()
+final(save = True)
 
 
-#plot_finalchi()
-#plot_finalbeau()
+plot_finalchi(save = True)
+plot_finalbeau(save = True)
 
 file = open('parametros_finais.csv',"w")
 file.write('#Aglomerado ' + nome + ', Ag = ' + str(Ag) +  ', E = ' + str(E) + '\n')
