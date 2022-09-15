@@ -3,8 +3,14 @@ import numpy as np
 import pandas as pd
 import math
 import time
-import concurrent.futures
-import multiprocessing as mp
+#import concurrent.futures
+#import multiprocessing as mp
+
+from multiprocessing.pool import Pool
+from multiprocessing import get_start_method
+from multiprocessing import get_context
+
+
 from scipy.stats import linregress
 from scipy.interpolate import interp1d
 #import matplotlib.font_manager as fm
@@ -318,8 +324,17 @@ def final(show = False, save = True):
     newage = idades
     resultado_chi = []
     resultado_beau = []
-    with concurrent.futures.ProcessPoolExecutor(mp_context=mp.get_context('fork')) as executor:
-      results = executor.map(chi_to_age,newage)
+    if __name__ == '__main__':
+        # get the start method
+        method = get_start_method()
+        print(f'Main process using {method}')
+        # create a process context
+        ctx = get_context('fork')
+        # create and configure the process pool
+        with Pool(context=ctx) as pool:
+            results = pool.map(chi_to_age,newage)
+    #with concurrent.futures.ProcessPoolExecutor(mp_context=mp.get_context('fork')) as executor:
+      #results = executor.map(chi_to_age,newage)
     for i in results:
         resultado_chi.append(i[0])
         resultado_beau.append(i[1])
@@ -507,7 +522,7 @@ def plot_teorico(show = False, save = True):
 
 
 
-#plot_teorico()
+plot_teorico()
 regressao_aglomerado()
 fit_inicial(save = True)
 ajuste_inicial(save = True)
