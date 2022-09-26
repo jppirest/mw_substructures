@@ -110,7 +110,7 @@ def regressao_aglomerado(n_sigma = 2):
     regressao_inicial = linregress(x,y)
     coefs = [regressao_inicial.slope,regressao_inicial.intercept]
     coefs_erro = [regressao_inicial.stderr,regressao_inicial.intercept_stderr]
-    t_fit = np.linspace(x.min(),x.max(),len(x))
+    t_fit = np.linspace(x.min(),x.max(), 1000)
     fit = linear_func(coefs,t_fit)
     sigma = np.sqrt((t_fit*coefs_erro[0])**2 + (coefs_erro[1])**2) #Intervalo Sigma
     xadj = []
@@ -185,8 +185,11 @@ def fit_inicial(show = False, save = False):
         plt.tight_layout()
         plt.savefig('./images/fit_inicial_' + rename(nome) + '.png', format = 'png');
 def ajuste_inicial(show = False, show_final = False, save = False):
-    modulodist_inicial = 5*np.log10(distancia_estimada/10) + E*3.1
-    arrays_de_incremento = np.arange(0,3.05,0.05)
+    global modulodist_inicial
+    modulodist_inicial = 5*np.log10(distancia_estimada/10) + Ag
+    passo = 0.05
+    modulodist_inicial = passo*round(modulodist_inicial/passo)
+    arrays_de_incremento = np.arange(0,4.05,passo)
     subtracao_distancias = np.concatenate((-1*np.flip(arrays_de_incremento[1:]),arrays_de_incremento))
     global modulo_distancia
     modulo_distancia = subtracao_distancias + modulodist_inicial
@@ -360,13 +363,13 @@ def final(show = False, save = True):
         x = modulo_distancia
         y = newage
         cmap = cm.get_cmap('jet')
-        cmap = cm.jet
+        cmap = cm.jet_r
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
         levels = 200
-        im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
+        im  = ax.contourf(x, y, resultado_chi, levels = levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label(r'$ \mathbf{\chi^2}$', fontweight = 'bold', rotation=0, labelpad=15)
-        ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
+        ax.set_xlabel(r'$\mathbf{(m - M)_o}$', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.show();
@@ -376,7 +379,7 @@ def final(show = False, save = True):
         im  = ax.contourf(x, y, resultado_beau, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label('Beauchamp', fontweight = 'bold', rotation=270, labelpad=15)
-        ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
+        ax.set_xlabel(r'$\mathbf{(m - M)_o}$', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.show();
@@ -386,24 +389,24 @@ def final(show = False, save = True):
         x = modulo_distancia
         y = newage
         cmap = cm.get_cmap('jet')
-        cmap = cm.jet
+        cmap = cm.jet_r
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
-        levels = 200
+        levels = 250
         im  = ax.contourf(x, y, resultado_chi, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label(r'$ \mathbf{\chi^2}$', fontweight = 'bold', rotation=0, labelpad=15)
-        ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
+        ax.set_xlabel(r'$\mathbf{(m - M)_o}$', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.tight_layout()
         plt.savefig('./images/chi_final_' + rename(nome) +'.png', format = 'png')
 
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
-        levels = 200
+        levels = 250
         im  = ax.contourf(x, y, resultado_beau, levels= levels, antialiased=False, cmap=cmap)
         cbar = fig.colorbar(im)
         cbar.set_label('Beauchamp', fontweight = 'bold', rotation=270, labelpad=15)
-        ax.set_xlabel('m - M', fontweight = 'bold', labelpad=10)
+        ax.set_xlabel(r'$\mathbf{(m - M)_o}$', fontweight = 'bold', labelpad=10)
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.tight_layout()
@@ -413,7 +416,7 @@ def plot_finalchi(show = False, save=False):
         isocrona_chi = isocronas[isocronas['logAge']==idadechi]
         fig,ax = plt.subplots(figsize=(7,5))
         plt.gca().invert_yaxis()
-        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Ag, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -431,7 +434,7 @@ def plot_finalchi(show = False, save=False):
         isocrona_chi = isocronas[isocronas['logAge']==idadechi]
         fig,ax = plt.subplots(figsize=(7,5))
         plt.gca().invert_yaxis()
-        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi +Ag, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distchi, label = 'log(Age) = ' + str(idadechi), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -450,7 +453,7 @@ def plot_finalbeau(show = False, save = False):
         isocrona_beau = isocronas[isocronas['logAge']==idadebeau]
         fig,ax = plt.subplots(figsize=(7,5))
         plt.gca().invert_yaxis()
-        ax.plot(isocrona_beau['BP-RP'] + E, isocrona_beau['Gmag'] + distbeau +Ag, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
+        ax.plot(isocrona_beau['BP-RP'] + E, isocrona_beau['Gmag'] + distbeau, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -468,7 +471,7 @@ def plot_finalbeau(show = False, save = False):
         isocrona_chi = isocronas[isocronas['logAge']==idadebeau]
         fig,ax = plt.subplots(figsize=(7,5))
         plt.gca().invert_yaxis()
-        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distbeau +Ag, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + distbeau, label = 'log(Age) = ' + str(idadebeau), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -537,7 +540,7 @@ file = open('parametros_finais.csv',"w")
 file.write('#Aglomerado ' + nome + ', Ag = ' + str(Ag) +  ', E = ' + str(E) + '\n')
 file.write('Metodo,Age,ModDist\n')
 file.write('DIAS2022, ' + str(idade_teorica) + ', ' + str(modulo_teorico) +  '\n')
-file.write('Inicial, ' + str(idade_inicial) + ', ' + str(5*np.log10(distancia_estimada/10)) +  '\n')
+file.write('Inicial, ' + str(idade_inicial) + ', ' + str(modulodist_inicial) +  '\n')
 file.write('Chi, ' + str(idadechi) + ', ' + str(distchi) +  '\n')
 file.write('Beauchamp, ' + str(idadebeau) + ', ' + str(distbeau))
 file.close()
