@@ -31,36 +31,41 @@ font = {'family' : 'serif',
 
 plt.rc('font', **font)
 
-nome = 'NGC 2420'
-def rename(string):
-    return string.replace(' ', '')
+import os
+directory_path = os.getcwd()
+nome_aglo = directory_path.split('/')[-1]
+nome = nome_aglo.replace('_',' ')
+nome_aglo_arquivo = nome_aglo.replace('_', '')
 
+dias = pd.read_csv('../../Catalogues/dias.csv', comment= '#')
+dias = dias[dias.Cluster == nome_aglo]
+modulo_teorico = 5*np.log10(dias.Dist.item()) - 5 
+#modulo_teorico = 12.06 ##cantat
+#idade_teorica = 9.2 ##cantat
+idade_teorica = dias.logage.item()
+idade_teorica = 0.1*round(idade_teorica/0.1) #arrendonda pra ter o valor de idade, passo_idade = 0.1
+arquivo = 'membros/final_semradec.csv'
 
-#modulo_teorico = 5*np.log10(4114) - 5 ###dias
-modulo_teorico = 12.06 ##cantat
-idade_teorica = 9.2 ##cantat
-
-
-arquivo = 'final_semradec.csv'
 
 def global_var(x):
     global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Ag
     #Av = 0.01 ##Cantat
     #Av = 0.183 ##Dias
-    Av = 0.04
+    #Av = 0.04
+    Av = dias.Av.item()
     Ag = 0.83627*Av
     E = (1.08337 - 0.63439)*Av
     aglomerado =  pd.read_csv(x)
     aglomerado = aglomerado.dropna(how = 'any', subset=['bp_rp','phot_g_mean_mag'])
     aglomerado = aglomerado.reset_index()
     #isocronas = pd.read_csv('../../../Isocronas/isocro.csv', header = 0)
-    isocronas = pd.read_csv('../iso_gaia_clipped.csv')
+    isocronas = pd.read_csv('../../../Isocronas_Gaia/isocronas_gaia.csv')#'/Users/jppirest/Projects/projeto_HR/dados/GAIA/Isocronas_Gaia/isocronas_gaia.csv')
+    isocronas = isocronas[isocronas.label < 4]
     idades = np.unique(isocronas['logAge'])
     XAglo = aglomerado['bp_rp']
     YAglo = aglomerado['phot_g_mean_mag']
     AGLO = np.vstack((XAglo,YAglo)).T
 global_var(arquivo)
-
 
 def linear_func(p, x):
     m, c = p
@@ -129,20 +134,19 @@ def regressao_aglomerado(n_sigma = 2):
     coefs_erro_ms = [regressao_mainseq.stderr,regressao_mainseq.intercept_stderr]
     cor_to = np.min(xadj)
     mag_to = yadj[np.where(xadj==cor_to)[0][0]]
-    f = open("regressao_" + arquivo, "w")
+    f = open("output_doitall/regressao_" + nome_aglo_arquivo +'.txt', "w")
     f.write("Slope,Intercept,Slope_Error,Intercept_Error,TurnOffColor,TurnOffMag\n")
     f.write( str(coefs_ms[0]) + ', ' + str(coefs_ms[1]) + ', ' + str(coefs_erro_ms[0]) + ', ' + str(coefs_erro_ms[1]) + ', ' + str(cor_to) + ', ' + str(mag_to) + '\n')
     f.close()
 def fit_inicial(show = False, save = False):
     global idade_inicial, distancia_estimada
-    regressao_isocronas = pd.read_csv('../Regressoes_Isocronas_Gaia.txt', header = 0)
+    regressao_isocronas = pd.read_csv('../../../Isocronas_Gaia//Regressoes_Isocronas_Gaia.txt', header = 0)
     f1 = interp1d(regressao_isocronas['(BP-RP)TurnOff'],  regressao_isocronas['Age'],kind= 'linear')
-    regressao_aglomerado = pd.read_csv('regressao_' + arquivo, header = 0)
+    regressao_aglomerado = pd.read_csv('output_doitall/regressao_' + nome_aglo_arquivo +'.txt', header = 0)
     idade_inicial = f1(regressao_aglomerado['TurnOffColor'] - E)
     idade_inicial = np.around(idade_inicial,1)[0]
     #print('Idade inicial estimada:')
-    #print(idade_inicial)
-    isocro_idadeinicial = regressao_isocronas[regressao_isocronas['Age'] == idade_inicial] ##mudando aqui
+    isocro_idadeinicial = regressao_isocronas[regressao_isocronas['Age'] == idade_inicial] 
     global slope_regressao
     slope_regressao = regressao_aglomerado['Slope'].item()
     distancia_estimada = distancia(regressao_aglomerado['Slope'].item(), regressao_aglomerado['Intercept'].item(), isocro_idadeinicial['Intercept'].item(),E)
@@ -183,7 +187,7 @@ def fit_inicial(show = False, save = False):
         ax.legend()
         fig.suptitle('Fit Inicial - ' + nome , fontweight = 'bold')
         plt.tight_layout()
-        plt.savefig('./images/fit_inicial_' + rename(nome) + '.png', format = 'png');
+        plt.savefig('output_doitall/fit_inicial_' + nome_aglo_arquivo + '.png', format = 'png');
 def ajuste_inicial(show = False, show_final = False, save = False):
     global modulodist_inicial
     modulodist_inicial = 5*np.log10(distancia_estimada/10) + Ag
@@ -282,7 +286,7 @@ def ajuste_inicial(show = False, show_final = False, save = False):
         ax.set_xlabel(r"$ \mathbf{BP-RP}$")
         ax.set_ylabel(r"$ \mathbf{G}$")
         plt.tight_layout()
-        plt.savefig('./images/ajuste_inicial_'+ rename(nome) + '.png', format = 'png');
+        plt.savefig('output_doitall/ajuste_inicial_'+ nome_aglo_arquivo + '.png', format = 'png');
 def n_idades(show = False):
     BeauchampAGES = np.zeros_like(idades)
     chisquaredAGES = np.zeros_like(idades)
@@ -399,7 +403,7 @@ def final(show = False, save = True):
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.tight_layout()
-        plt.savefig('./images/chi_final_' + rename(nome) +'.png', format = 'png')
+        plt.savefig('output_doitall/chi_final_' + nome_aglo_arquivo +'.png', format = 'png')
 
         fig, ax = plt.subplots(figsize = (8,6)) #(figsize=(10,8))
         levels = 200
@@ -410,7 +414,7 @@ def final(show = False, save = True):
         ax.set_ylabel('log(Age)', fontweight = 'bold', labelpad=10)
         ax.set_title(nome, fontweight = 'bold')
         plt.tight_layout()
-        plt.savefig('./images/beauchamp_final_' + rename(nome) +'.png', format = 'png')
+        plt.savefig('output_doitall/beauchamp_final_' + nome_aglo_arquivo +'.png', format = 'png')
 def plot_finalchi(show = False, save=False):
     if show == True:
         isocrona_chi = isocronas[isocronas['logAge']==idadechi]
@@ -447,7 +451,7 @@ def plot_finalchi(show = False, save=False):
         ax.set_ylabel(r"$\mathbf{G}$")
         fig.suptitle('Fit Final Chi - ' + nome, fontweight = 'bold')
         plt.tight_layout()
-        plt.savefig('./images/fit_final_chi' + rename(nome) + '.png', format = 'png')
+        plt.savefig('output_doitall/fit_final_chi' + nome_aglo_arquivo + '.png', format = 'png')
 def plot_finalbeau(show = False, save = False):
     if show == True:
         isocrona_beau = isocronas[isocronas['logAge']==idadebeau]
@@ -484,13 +488,13 @@ def plot_finalbeau(show = False, save = False):
         ax.set_ylabel(r"$\mathbf{G}$")
         fig.suptitle('Fit Final Beauchamp - ' + nome, fontweight = 'bold')
         plt.tight_layout()
-        plt.savefig('./images/fit_final_beau' + rename(nome) + '.png', format = 'png')
+        plt.savefig('output_doitall/fit_final_beau' + nome_aglo_arquivo + '.png', format = 'png')
 def plot_teorico(show = False, save = True):
     if show == True:
-        isocrona_chi = isocronas[isocronas['logAge']==idade_teorica]
+        isocrona_chi = isocronas[isocronas['logAge']==idade_teorica ]
         fig,ax = plt.subplots(figsize=(7,5))
         ax.invert_yaxis()
-        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Ag , label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
+        ax.plot(isocrona_chi['BP-RP'] + E, isocrona_chi['Gmag'] + modulo_teorico + Ag, label = 'log(Age) = ' + str(idade_teorica), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.xaxis.set_minor_locator(AutoMinorLocator())
         ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -521,22 +525,23 @@ def plot_teorico(show = False, save = True):
         ax.set_ylabel(r"$\mathbf{G}$")
         fig.suptitle('Fit Teórico - ' + nome, fontweight = 'bold')
         plt.tight_layout()
-        plt.savefig('./images/fit_teorico' + rename(nome) + '.png', format = 'png')
+        plt.savefig('output_doitall/fit_teorico' + nome_aglo_arquivo + '.png', format = 'png')
 
 
 
-plot_teorico()
+plot_teorico(show = False)
 regressao_aglomerado()
 fit_inicial(save = True)
 ajuste_inicial(save = True)
-#n_idades()
+n_idades()
 final(save = True)
 
 
 plot_finalchi(save = True)
 plot_finalbeau(save = True)
 
-file = open('parametros_finais.csv',"w")
+
+file = open('output_doitall/parametros_finais.csv',"w")
 file.write('#Aglomerado ' + nome + ', Ag = ' + str(Ag) +  ', E = ' + str(E) + '\n')
 file.write('Metodo,Age,ModDist\n')
 file.write('DIAS2022, ' + str(idade_teorica) + ', ' + str(modulo_teorico) +  '\n')
