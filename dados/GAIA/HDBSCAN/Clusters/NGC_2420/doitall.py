@@ -48,7 +48,7 @@ arquivo = 'membros/final_semradec.csv'
 
 
 def global_var(x):
-    global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Ag
+    global aglomerado, isocronas, E, idades, XAglo, YAglo, AGLO, Ag, Av
     #Av = 0.01 ##Cantat
     #Av = 0.183 ##Dias
     #Av = 0.04
@@ -71,7 +71,7 @@ def linear_func(p, x):
     m, c = p
     return m*x + c
 def distancia(a,b,b0,E):
-    return 10**((a*E + (b-b0) - E*3.1 + 5 )/5)
+    return 10**((a*E + (b-b0) - Ag + 5 )/5)  #3.1*E
 def jpt(X,Y):
     array = (X - Y)
     array = np.sum(array**2, axis = 1)
@@ -104,14 +104,49 @@ def chi_to_age(IDADE):
       B[i] += final*10**(-0.4*AGLO[j][1])
   return A,B
 
+def count_neighbours(point, all_points, n):
+    """
+    Count the neighbours of a point, where neighbours are other points in
+    all_points that are within a square of side length n, centered on point.
+
+    Arguments:
+    point -- the point on which the square will be centered.
+    all_points -- the set of points to check.
+    n -- the side length of the square.
+    """
+    px = point[0]  # x-value (first coordinate) of the point p
+    py = point[1]  # y-value (second coordinate) of the point p
+    offset = n/2  # half of square side length
+    neighbours_x = all_points[:, 0] >= px-offset
+    # is a point >= the lower bound in x?
+    neighbours_x &= (all_points[:, 0] <= px+offset)
+    # is a point <= the upper bound in x?
+    neighbours_y = all_points[:, 1] >= py-offset  # lower bound in y
+    neighbours_y &= all_points[:, 1] <= py+offset  # upper bound in y
+    neighbours = neighbours_x & neighbours_y  # neighbours in both axes
+
+    return neighbours.sum()
+
+def square(size_box,n_stars, array):
+    estrelas_finais = np.empty((0,2))
+    for i in range(len(array)):
+        numero = count_neighbours(array[i],array,size_box)
+        if numero >=n_stars+1:
+            estrelas_finais = np.append(estrelas_finais, np.array([array[i]]), axis  = 0) #problema no formato do array para dar append
+        else:
+            continue
+    return estrelas_finais
 #################
 #print('log(Age) Teórica: ', idade_teorica)
 #print('V - M_V Observado: ', modulo_teorico)
 #print('\n')
 
 def regressao_aglomerado(n_sigma = 2):
-    x = XAglo
-    y = YAglo
+    ptos  = np.dstack((XAglo,YAglo))[0]
+    pontos = square(0.15,2, ptos)
+    x,y  = pontos.T
+    #x = XAglo
+    #y = YAglo
     regressao_inicial = linregress(x,y)
     coefs = [regressao_inicial.slope,regressao_inicial.intercept]
     coefs_erro = [regressao_inicial.stderr,regressao_inicial.intercept_stderr]
@@ -163,7 +198,7 @@ def fit_inicial(show = False, save = False):
         ax.tick_params(which = 'minor', axis = 'y', direction='in', length = 4)
         ax.tick_params(which = 'major', axis = 'x', direction='in', length = 7)
         ax.tick_params(which = 'minor', axis = 'x', direction='in', length = 4)
-        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] +5*np.log10(distancia_estimada/10)+Ag , label =  'log(Age) = ' + str(idade_inicial), color = 'r', zorder = 10)
+        ax.plot(isocrona_idade_estimada['BP-RP'] + E,isocrona_idade_estimada['Gmag'] + 5*np.log10(distancia_estimada/10) + Ag , label =  'log(Age) = ' + str(idade_inicial), color = 'r', zorder = 10)
         ax.scatter(XAglo,YAglo, color = 'none', edgecolor = 'black')
         ax.set_xlabel(r"$ \mathbf{BP-RP}$")
         ax.set_ylabel(r"$\mathbf{G}$")
@@ -542,7 +577,7 @@ plot_finalbeau(save = True)
 
 
 file = open('output_doitall/parametros_finais.csv',"w")
-file.write('#Aglomerado ' + nome + ', Ag = ' + str(Ag) +  ', E = ' + str(E) + '\n')
+file.write('#Aglomerado ' + nome + ', Av = ' + str(Av) + ', Ag = ' + str(Ag) +  ', E = ' + str(E) + '\n')
 file.write('Metodo,Age,ModDist\n')
 file.write('DIAS2022, ' + str(idade_teorica) + ', ' + str(modulo_teorico) +  '\n')
 file.write('Inicial, ' + str(idade_inicial) + ', ' + str(modulodist_inicial) +  '\n')
