@@ -24,20 +24,20 @@ def dist(X,Y):
   return distancia
 
 
-aglomerado = pd.read_csv('membros/final_semradec.csv')
+aglomerado = pd.read_csv('membros/raio_phasespace.csv')
 XAglo = aglomerado['bp_rp']
 YAglo = aglomerado['phot_g_mean_mag']
 AGLO = np.vstack((XAglo,YAglo)).T
 
-isocronas_geral = pd.read_csv('../../../Isocronas_Gaia/gaia_metal.csv')
+isocronas_geral = pd.read_csv('../../../Isocronas_Gaia/isocronas_gaiaedr3.csv')
 isocronas_geral = isocronas_geral[isocronas_geral.label <= 4]
-isocronas_geral['BP_RP'] = isocronas_geral['G_BPmag'] - isocronas_geral['G_RPmag']
+#isocronas_geral['BP_RP'] = isocronas_geral['G_BPmag'] - isocronas_geral['G_RPmag']
 idades = np.unique(isocronas_geral['logAge'])
-newage = idades[4:10]
+newage = idades[2:10]
 metalicidades = np.unique(isocronas_geral.MH)
 
 avs = np.arange(0.0,0.15,0.005)
-passo = 0.1
+passo = 0.05
 modulodist_inicial = 12
 modulo_distancia = np.arange(modulodist_inicial - 1, modulodist_inicial + 1, passo)
 
@@ -57,9 +57,11 @@ def fit_all(age, metal, Av, distance_modulus):
     for i in range(len(ISO)):
         for j in range(len(AGLO)):
             C,D = jpt(AGLO[j],ISO[i])
+            teste = dist(ISO[i][C], AGLO[j])
             final = frayn(ISO[i][C], ISO[i][D],AGLO[j])
-            A[i] += final
+            A[i] += teste #final
     return A
+
 def teste_atomico(array):
     if __name__ == '__main__':
         # get the start method
