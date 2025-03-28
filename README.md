@@ -1,5 +1,7 @@
 # B.Sc Project - Milky Way Substructures
 
+![Stellar Clusters and Streams as seen in the sky](dados/GAIA/main/streams_clusters.png)
+
 This is a repository where I put all my undegraduate work on stellar populations.
 
 Yet to organize the folders and sections.
